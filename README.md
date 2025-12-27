@@ -1,100 +1,252 @@
-# aWay
+# [Pano](https://simcript.github.io/pano/) 
+## Nano Domain Framework (PHP)
 
-## PHP Application Gateway
+A **very simple, Composer-independent nano-framework** based on Domains, which does just one thing:
 
-**aWay** is a lightweight, fast and open-source gateway system developed in PHP. It acts as a central entry point for routing requests to multiple backend services or applications, enabling better control, security, and scalability for your architecture.
+> **It receives the incoming Request and forwards it to a specified Domain**
 
-## Features
+Any Routing, Middleware, Validation, Response, Auth, etc., is **completely handled by the Developer** within the Domains.
 
-* Lightweight and easy to configure
-* Fast and flexible to achieve the goal
-* Built entirely with PHP so it runs at minimal cost
-* Supports routing to multiple backend services
-* Customizable request handling and logging(soon)
-* Open-source and community-driven
+The project is intentionally minimal, aiming for:
 
-## Requirements
+* Absolute simplicity
+* No Composer dependency
+* Full control for the Developer over structure
+* Suitable for MVPs, internal tools, small APIs, or a personal base
 
-* PHP 8.2 or higher
-* Web server (e.g., Apache, Nginx)
+---
 
-## Installation
+## Design Philosophy
 
-1. Clone the repository:
+This framework:
 
-   ```bash
-   git clone https://github.com/simcript/away.git
-   ```
+* ❌ Does not have a Router
+* ❌ Does not enforce MVC Controllers
+* ❌ Does not include global Middleware
+* ❌ Does not provide a Container
 
-2. Configure your routes and services in the `services/` directory.
+Instead:
 
-## Usage
+* ✅ Provides a **Domain Entry Point**
+* ✅ Provides a **clean Request Object**
+* ✅ Provides a simple **Boot** for execution
 
-Once installed and configured, all incoming HTTP requests will be routed through the gateway and forwarded to the appropriate backend service.
+Each Domain is an independent starting point and can have any internal architecture.
 
-> Create a directory with service name (similar DEFAULT Service)
+---
 
-> Define a class within the `services/{ServiceName}` directory following the provided example structure, and implement the required methods based on your application's specific needs.
+## Project Structure
 
-> Define service prefix in index.php
+```text
+project/   
+│── index.php
+└── .env
+```
 
-   ```php
-   <?php
+---
 
-namespace Services;
+## Entry Point (index.php)
 
-use App\Service\ServiceName;
+All application entry passes through this file:
 
-final class Foo extends Service
+```php
+(new Boot())->run();
+```
+
+---
+
+## What is Boot?
+
+`Boot` is responsible for:
+
+1. Receiving the Request
+2. Determining the target Domain
+3. Instantiating the Domain
+4. Running the Domain
+
+Boot **does not contain any business logic**.
+
+---
+
+## Request Object
+
+All incoming data is provided to the Domain via the `Request` class:
+
+```php
+class Request
+{
+    public readonly string $method;
+    public readonly string $uri;
+    public readonly array $query;
+    public readonly array $body;
+    public readonly array $headers;
+}
+```
+
+### Advantages:
+
+* No direct access to `$_GET`, `$_POST`, `$_SERVER`
+* High testability
+* Clear and predictable data
+
+---
+
+## What is a Domain?
+
+A Domain is the **main execution unit** of this framework.
+
+Each Domain:
+
+* Is a PHP class
+* Extends the `Domain` base class
+* Has a `handle()` method
+
+### Base Domain Class
+
+```php
+abstract class Domain
+{
+    public function __construct(
+        protected readonly Request $request
+    ) {}
+    abstract protected function handle(): void;
+}
+```
+
+---
+
+## Creating a Simple Domain
+
+```php
+namespace Domains;
+
+class Main extends \Domain
 {
 
-    /**
-     * return domain url e.g. https://example.com
-     * @return string
-     */
-    public function getDomain(): string
+    public function handle(): \Closure
     {
-        return 'https://foo.bar.url';
+        return fn() => $this->info();
     }
 
-    /**
-     * Returns the corresponding route of a URL
-     * e.g. when the corresponding route is an url in target domain
-     * or a method defined in domain class
-     * '/example/route' => '/sample/route'  // only mapper
-     * '/example/route' => 'method'  // run a specific method
-     * Note: If a route is not defined,
-     * the request is made to the same address on the target domain
-     * @param string $url
-     * @return string
-     */
-    public function routeMapper(string $url): string
+    public function info(): void
     {
-        return $url;
-    }
-    
-    /**
-     * check is allowed header
-     * @param string $header
-     * @return bool
-     */
-    public function isAllowedHeader(string $header): bool
-    {
-        return true;
+        echo 'Pano a php nano framework';
     }
 
 }
-   ```
+```
 
-## Update
-Run following command
-``git pull``
-Or Download ``app`` directory and replace files.
+Inside `handle()`, the Developer can freely implement:
 
-## Contributing
+* Custom Routing
+* Service calls
+* Authentication
+* Validation
+* JSON or HTML Responses
 
-Contributions are welcome! Feel free to open issues, fork the project, and submit pull requests.
+Everything is fully flexible.
 
-## License
+---
 
-This project is licensed under the [MIT License](LICENSE).
+## Selecting the Target Domain
+
+Boot determines **which Domain to execute** based on the Request.
+
+Simple example:
+
+```php
+$domainClass = match ($request->uri) {
+    '/' => HomeDomain::class,
+    '/api' => ApiDomain::class,
+    default => NotFoundDomain::class,
+};
+```
+
+This logic can be:
+
+* Conditional
+* Regex-based
+* Config-driven
+* Or fully custom
+
+---
+
+## Error Handling
+
+In this version:
+
+* Error handling is simple and developer-friendly
+* For production, customization is recommended
+
+Developers can use:
+
+* try/catch inside Domain
+* Or add wrappers in Boot
+
+---
+
+## .env File
+
+Simple environment support for basic configuration:
+
+```env
+APP_ENV=local
+APP_DEBUG=true
+```
+
+> The parser is simple and not meant for complex configuration.
+
+---
+
+## Why No Composer?
+
+This decision is **intentional**:
+
+* Fast execution
+* Full understanding of the code
+* No external dependencies
+* Suitable for learning and personal use
+
+> Future versions or forks may support Composer and PSR-4.
+
+---
+
+## Suitable Use Cases
+
+✔ Internal tools
+✔ Small APIs
+✔ MVP projects
+✔ Learning projects
+✔ Personal framework base
+
+❌ Large enterprise projects
+❌ Large teams with strict standards
+
+---
+
+## Optional Future Enhancements
+
+These are **optional**:
+
+* Composer + PSR-4 support
+* Independent Router
+* Response Object
+* Middleware Stack
+* Attribute-based mapping
+
+---
+
+## Summary
+
+This nano-framework is:
+
+* Small
+* Transparent
+* Does not impose restrictions
+* Trusts the Developer
+
+> “A framework should not get in your way.”
+
+---
+
+Built for Developers who **prefer control to magic** 🧠
