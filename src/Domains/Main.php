@@ -1,8 +1,10 @@
 <?php
 
-namespace Domains;
+namespace Pano\Domains;
 
-class Main extends \Domain
+use Pano\Core\Domain;
+
+class Main extends Domain
 {
 
     public function handle(): \Closure

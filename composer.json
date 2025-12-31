@@ -1,0 +1,17 @@
+{
+  "name": "simcript/pano",
+  "description": "Nano Domain Framework",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Pano\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "require": {
+    "php": ">=8.1"
+  }
+}
