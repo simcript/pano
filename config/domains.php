@@ -1,4 +1,4 @@
 <?php
 return [
-    '' => \Pano\Domains\Main::class,
+    '' => \Pano\Foundation\Domain::class,
 ];

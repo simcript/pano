@@ -8,5 +8,5 @@ abstract readonly class BaseDomain
         protected BaseRequest $request
     ) {}
 
-    abstract protected function handle(): \Closure;
+    abstract protected function routes(): BaseRouter;
 }
