@@ -78,7 +78,20 @@ abstract readonly class BaseRequest
 
     public function getDomain(): string
     {
-        return $this->segments[0] ?? '';
+        if (config('app.resolver', 'path')) {
+            return $this->segments[0] ?? '';
+        } else {
+            $host = parse_url($this->getUrl(), PHP_URL_HOST);
+            if (($host === false) || ($host === null)) {
+                return '';
+            }
+            $parts = explode('.', $host);
+            if (count($parts) < 3) {
+                return '';
+            }
+            $subdomainParts = array_slice($parts, 0, -2);
+            return implode('.', $subdomainParts);
+        }
     }
 
     public function getHost(): string

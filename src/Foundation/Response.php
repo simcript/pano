@@ -73,7 +73,7 @@ final class Response extends BaseResponse
         \Throwable $e,
         Request $request
     ): self {
-        $debug = getenv('APP_DEBUG');
+        $debug = config('app.debug', false);
 
         if ($e instanceof BaseException) {
 

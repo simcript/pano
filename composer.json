@@ -1,6 +1,6 @@
 {
   "name": "simcript/pano",
-  "description": "Nano Domain Framework",
+  "description": "Nano domain framework",
   "type": "library",
   "license": "MIT",
   "autoload": {
