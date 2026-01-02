@@ -21,7 +21,6 @@ Pano is built on these principles:
 
 Pano deliberately **does not provide**:
 
-* ❌ A router
 * ❌ MVC controllers
 * ❌ A service container
 * ❌ Global middleware
@@ -87,8 +86,7 @@ project/
     └── Foundation/
         ├── Boot.php
         ├── Domain.php
-        ├── Request.php
-        └── JsonResponse.php
+        └── Request.php
 ```
 
 ---
@@ -110,28 +108,13 @@ You are free to replace `Foundation\Boot` with your own implementation.
 ```php
 abstract class BaseBoot
 {
-    final public function run(): void
-    {
-        try {
-            $this->boot();
-            $this->dispatch();
-        } catch (\Throwable $e) {
-            $this->handleException($e);
-        }
-    }
+    abstract public function run(): void;
 
-    protected function boot(): void {}
-    abstract protected function dispatch(): void;
-
-    protected function handleException(\Throwable $e): void
-    {
-        throw $e;
-    }
+    protected BaseRequest $request;
 }
 ```
 
 * `run()` defines the execution flow
-* `dispatch()` is the only required implementation point
 * Flow cannot be broken, only customized
 
 ---
@@ -142,19 +125,10 @@ abstract class BaseBoot
 abstract class BaseDomain
 {
     public function __construct(
-        protected readonly BaseRequest $request
+        protected BaseRequest $request
     ) {}
 
-    final public function run(): void
-    {
-        $result = $this->handle();
-
-        if ($result instanceof \Closure) {
-            $result();
-        }
-    }
-
-    abstract protected function handle(): mixed;
+    abstract protected function routes(): BaseRouter;
 }
 ```
 
@@ -173,11 +147,15 @@ Routing, validation, auth, and responses are fully controlled by the developer.
 ```php
 abstract class BaseRequest
 {
-    public readonly string $method;
-    public readonly string $uri;
-    public readonly array $query;
-    public readonly array $body;
-    public readonly array $headers;
+    protected string|array $data;
+    protected array $files;
+    protected array $headers;
+    protected array $queries;
+    protected string $method;
+    protected string $query;
+    protected string $url;
+    protected array $segments;
+    protected string $host;
 }
 ```
 
@@ -194,52 +172,15 @@ Advantages:
 ```php
 abstract class BaseResponse
 {
+    abstract public function send(): void;
+
     protected int $status = 200;
     protected array $headers = [];
-
-    final public function send(): void
-    {
-        http_response_code($this->status);
-
-        foreach ($this->headers as $key => $value) {
-            header("$key: $value");
-        }
-
-        $this->output();
-    }
-
-    abstract protected function output(): void;
+    protected mixed $body = null;
 }
 ```
 
 * `send()` is a closed execution flow
-* `output()` is the customization point
-
----
-
-## Foundation Classes
-
-Foundation provides **ready-to-use implementations**:
-
-```php
-final class JsonResponse extends BaseResponse
-{
-    public function __construct(private mixed $data) {}
-
-    protected function output(): void
-    {
-        $this->headers['Content-Type'] = 'application/json';
-        echo json_encode($this->data);
-    }
-}
-```
-
-Foundation classes:
-
-* Are marked `final`
-* Are safe defaults
-* Can be replaced by custom implementations
-
 ---
 
 ## Error Handling
@@ -261,24 +202,15 @@ No global error strategy is enforced.
 Pano supports a very simple `.env` file:
 
 ```env
+APP_NAME=Pano
 APP_ENV=local
+APP_KEY=Iur5UWL6KVz/2jsJTfjF+YbzAmnvejpIfYWo0fzZ8Mg=
 APP_DEBUG=true
+APP_URL=https://neda.tst
+DOMAIN_RESOLVER=path #path or subdomain
 ```
 
 The parser is minimal by design and intended for basic configuration only.
-
----
-
-## Why No Composer?
-
-This decision is **intentional**:
-
-* Faster execution
-* Full code visibility
-* No dependency graph
-* Ideal for learning, MVPs, and internal tools
-
-Future forks or versions may add Composer support.
 
 ---
 
