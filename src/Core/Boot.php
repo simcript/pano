@@ -4,16 +4,22 @@ namespace Pano\Core;
 
 final readonly class Boot
 {
+    private readonly Request $request;
+
     public function __construct()
     {
+        $this->debug(getenv('APP_DEBUG'));
+        $this->request = new Request();
+        try {
+            $this->envLoader();
+        } catch (Exception $e) {
+            Response::exception($e, $this->request)->send();
+        }
     }
 
     public function run(): void
     {
-        $this->debug(getenv('APP_DEBUG'));
-        $this->envLoader();
-        $request = new Request();
-        $domainName = config('domains.' . $request->getDomain(), '');
+        $domainName = config('domains.' . $this->request->getDomain(), '');
         try {
             if (!class_exists($domainName)) {
                 throw new \RuntimeException("Domain class ($domainName) not found");
@@ -22,10 +28,11 @@ final readonly class Boot
             if (!$reflection->isSubclassOf(Domain::class)) {
                 throw new \RuntimeException("Domain ($domainName) must extend " . Domain::class);
             }
-            $domain = $reflection->newInstance($request);
+            $domain = $reflection->newInstance($this->request);
             $domain->handle()();
-        } catch (\Throwable $e) {
-            exception(404, $e->getMessage(), 500, $e->getMessage());
+        }
+        catch (\Throwable $e) {
+            Response::exception($e, $this->request)->send();
         }
     }
 
@@ -35,11 +42,14 @@ final readonly class Boot
         ini_set('display_errors', $status ? '1' : '0');
     }
 
+    /**
+     * @throws Exception
+     */
     private function envLoader(): void
     {
         $envFilePath = BASE_PATH . DIRECTORY_SEPARATOR . '.env';
         if (!file_exists($envFilePath)) {
-            dieError(500, '.env file not found. Create a environment file(.env) similar to .env.example file.');
+            throw new Exception('.env file not found. Create a environment file(.env) similar to .env.example file.', 500, 500);
         }
         $env = file_get_contents($envFilePath);
         $lines = explode(PHP_EOL, $env);

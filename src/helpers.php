@@ -8,18 +8,6 @@ if (!function_exists('dd')) {
     }
 }
 
-if (!function_exists('exception')) {
-    function exception(int $code, string $message, int $status = 500, string $logMessage = ''): void
-    {
-        http_response_code($status);
-        if (!empty($logMessage)) {
-            error_log($logMessage);
-        }
-        dd($code, $message);
-    }
-}
-
-
 if (!function_exists('config')) {
 
     function config(string $key, mixed $default = null): mixed

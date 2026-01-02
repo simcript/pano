@@ -86,6 +86,15 @@ final readonly class Request
         return $this->host;
     }
 
+    public function expectsJson(): bool
+    {
+        $accept = $this->headers['Accept'] ?? '';
+
+        return str_contains($accept, 'application/json')
+            || str_contains($accept, 'text/json')
+            || str_contains($accept, '*/*');
+    }
+
     private function fetchData(): Request
     {
         $data = file_get_contents('php://input');
