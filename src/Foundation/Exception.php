@@ -1,41 +1,11 @@
 <?php
 
-namespace Pano\Core;
+namespace Pano\Foundation;
 
-class Exception extends \Exception
+use Pano\Core\BaseException;
+
+final class Exception extends BaseException
 {
-    protected int $status = 500;
-    protected mixed $payload = null;
-    protected bool $report = true;
-
-    public function __construct(
-        string $message = 'Server Error',
-        int $code = 500,
-        int $status = 500,
-        mixed $payload = null,
-        ?\Throwable $previous = null
-    ) {
-        parent::__construct($message, $code, $previous);
-
-        $this->status  = $status;
-        $this->payload = $payload;
-    }
-
-    public function status(): int
-    {
-        return $this->status;
-    }
-
-    public function payload(): mixed
-    {
-        return $this->payload;
-    }
-
-    public function shouldReport(): bool
-    {
-        $this->report = true;
-        return $this->report;
-    }
 
     public function toArray(bool $debug = false): array
     {

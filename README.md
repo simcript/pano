@@ -1,79 +1,177 @@
-# [Pano](https://simcript.github.io/pano/) 
+# [Pano](https://simcript.github.io/pano/)
 ## Nano Domain Framework (PHP)
 
-A **very simple, Composer-independent nano-framework** based on Domains, which does just one thing:
+Pano is a **very small, Composer-independent nano framework** designed around a single idea:
 
-> **It receives the incoming Request and forwards it to a specified Domain**
+> **Define clear execution contracts, then provide simple default implementations.**
 
-Any Routing, Middleware, Validation, Response, Auth, etc., is **completely handled by the Developer** within the Domains.
-
-The project is intentionally minimal, aiming for:
-
-* Absolute simplicity
-* No Composer dependency
-* Full control for the Developer over structure
-* Suitable for MVPs, internal tools, small APIs, or a personal base
+The framework is intentionally minimal and non-opinionated. It gives developers **structure without control**, and **contracts without restriction**.
 
 ---
 
 ## Design Philosophy
 
-This framework:
+Pano is built on these principles:
 
-* ❌ Does not have a Router
-* ❌ Does not enforce MVC Controllers
-* ❌ Does not include global Middleware
-* ❌ Does not provide a Container
+* Absolute simplicity
+* No Composer dependency
+* No hidden magic
+* Full developer control
+* Clear and explicit execution flow
 
-Instead:
+Pano deliberately **does not provide**:
 
-* ✅ Provides a **Domain Entry Point**
-* ✅ Provides a **clean Request Object**
-* ✅ Provides a simple **Boot** for execution
+* ❌ A router
+* ❌ MVC controllers
+* ❌ A service container
+* ❌ Global middleware
 
-Each Domain is an independent starting point and can have any internal architecture.
+Instead, it provides:
+
+* ✅ Execution contracts (Core)
+* ✅ Stable default behavior (Foundation)
+* ✅ Domain-centric architecture
 
 ---
 
-## Project Structure
+## Core vs Foundation
+
+Pano separates **contracts** from **behavior**.
+
+### Core
+
+The **Core** contains only **abstract base classes**.
+
+These classes:
+
+* Define execution flow
+* Define method signatures
+* Define responsibilities
+* Act as **contracts**, not implementations
+
+All Core classes:
+
+* Are **abstract**
+* Use the `Base` prefix
+* Are safe and intended to be extended
+
+> Core classes describe *how the system works*, not *what it does*.
+
+### Foundation
+
+The **Foundation** contains **final, concrete implementations** built on top of Core contracts.
+
+These classes:
+
+* Implement Core behavior
+* Provide sensible defaults
+* Are production-ready
+* Can be replaced or ignored entirely
+
+> Foundation exists for convenience, not enforcement.
+
+---
+
+## Directory Structure
 
 ```text
-project/   
+project/
 │── index.php
-└── .env
+└── Pano/
+    ├── Core/
+    │   ├── BaseBoot.php
+    │   ├── BaseDomain.php
+    │   ├── BaseRequest.php
+    │   └── BaseResponse.php
+    │
+    └── Foundation/
+        ├── Boot.php
+        ├── Domain.php
+        ├── Request.php
+        └── JsonResponse.php
 ```
 
 ---
 
-## Entry Point (index.php)
+## Entry Point
 
-All application entry passes through this file:
+All application execution starts from a single entry point:
 
 ```php
-(new Boot())->run();
+(new \Pano\Foundation\Boot())->run();
 ```
 
----
-
-## What is Boot?
-
-`Boot` is responsible for:
-
-1. Receiving the Request
-2. Determining the target Domain
-3. Instantiating the Domain
-4. Running the Domain
-
-Boot **does not contain any business logic**.
+You are free to replace `Foundation\Boot` with your own implementation.
 
 ---
 
-## Request Object
-
-All incoming data is provided to the Domain via the `Request` class:
+## BaseBoot (Core Contract)
 
 ```php
-class Request
+abstract class BaseBoot
+{
+    final public function run(): void
+    {
+        try {
+            $this->boot();
+            $this->dispatch();
+        } catch (\Throwable $e) {
+            $this->handleException($e);
+        }
+    }
+
+    protected function boot(): void {}
+    abstract protected function dispatch(): void;
+
+    protected function handleException(\Throwable $e): void
+    {
+        throw $e;
+    }
+}
+```
+
+* `run()` defines the execution flow
+* `dispatch()` is the only required implementation point
+* Flow cannot be broken, only customized
+
+---
+
+## BaseDomain (Core Contract)
+
+```php
+abstract class BaseDomain
+{
+    public function __construct(
+        protected readonly BaseRequest $request
+    ) {}
+
+    final public function run(): void
+    {
+        $result = $this->handle();
+
+        if ($result instanceof \Closure) {
+            $result();
+        }
+    }
+
+    abstract protected function handle(): mixed;
+}
+```
+
+Domains:
+
+* Are the **main execution units**
+* Receive a Request object
+* Contain all business logic
+
+Routing, validation, auth, and responses are fully controlled by the developer.
+
+---
+
+## BaseRequest (Core Contract)
+
+```php
+abstract class BaseRequest
 {
     public readonly string $method;
     public readonly string $uri;
@@ -83,118 +181,91 @@ class Request
 }
 ```
 
-### Advantages:
+Advantages:
 
-* No direct access to `$_GET`, `$_POST`, `$_SERVER`
+* No direct access to superglobals
+* Predictable input
 * High testability
-* Clear and predictable data
 
 ---
 
-## What is a Domain?
-
-A Domain is the **main execution unit** of this framework.
-
-Each Domain:
-
-* Is a PHP class
-* Extends the `Domain` base class
-* Has a `handle()` method
-
-### Base Domain Class
+## BaseResponse (Core Contract)
 
 ```php
-abstract class Domain
+abstract class BaseResponse
 {
-    public function __construct(
-        protected readonly Request $request
-    ) {}
-    abstract protected function handle(): \Closure;
+    protected int $status = 200;
+    protected array $headers = [];
+
+    final public function send(): void
+    {
+        http_response_code($this->status);
+
+        foreach ($this->headers as $key => $value) {
+            header("$key: $value");
+        }
+
+        $this->output();
+    }
+
+    abstract protected function output(): void;
 }
 ```
 
+* `send()` is a closed execution flow
+* `output()` is the customization point
+
 ---
 
-## Creating a Simple Domain
+## Foundation Classes
+
+Foundation provides **ready-to-use implementations**:
 
 ```php
-namespace Domains;
-
-class Main extends \Domain
+final class JsonResponse extends BaseResponse
 {
+    public function __construct(private mixed $data) {}
 
-    public function handle(): \Closure
+    protected function output(): void
     {
-        return fn() => $this->info();
+        $this->headers['Content-Type'] = 'application/json';
+        echo json_encode($this->data);
     }
-
-    public function info(): void
-    {
-        echo 'Pano a php nano framework';
-    }
-
 }
 ```
 
-Inside `handle()`, the Developer can freely implement:
+Foundation classes:
 
-* Custom Routing
-* Service calls
-* Authentication
-* Validation
-* JSON or HTML Responses
-
-Everything is fully flexible.
-
----
-
-## Selecting the Target Domain
-
-Boot determines **which Domain to execute** based on the Request.
-
-Simple example:
-
-```php
-$domainClass = match ($request->uri) {
-    '/' => HomeDomain::class,
-    '/api' => ApiDomain::class,
-    default => NotFoundDomain::class,
-};
-```
-
-This logic can be:
-
-* Conditional
-* Regex-based
-* Config-driven
-* Or fully custom
+* Are marked `final`
+* Are safe defaults
+* Can be replaced by custom implementations
 
 ---
 
 ## Error Handling
 
-In this version:
+Error handling is intentionally simple.
 
-* Error handling is simple and developer-friendly
-* For production, customization is recommended
+Developers may:
 
-Developers can use:
+* Catch exceptions inside Domains
+* Override `handleException()` in Boot
+* Introduce custom exception contracts
 
-* try/catch inside Domain
-* Or add wrappers in Boot
+No global error strategy is enforced.
 
 ---
 
-## .env File
+## Environment (.env)
 
-Simple environment support for basic configuration:
+Pano supports a very simple `.env` file:
 
 ```env
 APP_ENV=local
 APP_DEBUG=true
 ```
 
-> The parser is simple and not meant for complex configuration.
+The parser is minimal by design and intended for basic configuration only.
 
 ---
 
@@ -202,51 +273,39 @@ APP_DEBUG=true
 
 This decision is **intentional**:
 
-* Fast execution
-* Full understanding of the code
-* No external dependencies
-* Suitable for learning and personal use
+* Faster execution
+* Full code visibility
+* No dependency graph
+* Ideal for learning, MVPs, and internal tools
 
-> Future versions or forks may support Composer and PSR-4.
+Future forks or versions may add Composer support.
 
 ---
 
 ## Suitable Use Cases
 
-✔ Internal tools
-✔ Small APIs
 ✔ MVP projects
+✔ Small APIs
+✔ Internal tools
+✔ Personal frameworks
 ✔ Learning projects
-✔ Personal framework base
 
-❌ Large enterprise projects
+❌ Large enterprise systems
 ❌ Large teams with strict standards
-
----
-
-## Optional Future Enhancements
-
-These are **optional**:
-
-* Composer + PSR-4 support
-* Independent Router
-* Response Object
-* Middleware Stack
-* Attribute-based mapping
 
 ---
 
 ## Summary
 
-This nano-framework is:
+Pano is a framework that:
 
-* Small
-* Transparent
-* Does not impose restrictions
-* Trusts the Developer
+* Separates **contracts** from **behavior**
+* Trusts developers over abstractions
+* Avoids magic and global state
+* Encourages clarity and ownership
 
-> “A framework should not get in your way.”
+> *A framework should guide execution, not control it.*
 
 ---
 
-Built for Developers who **prefer control to magic** 🧠
+Built for developers who prefer **understanding to convenience** 🧠

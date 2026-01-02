@@ -2,7 +2,7 @@
 
 namespace Pano\Core;
 
-final readonly class Request
+abstract readonly class BaseRequest
 {
     private string|array $data;
     private array $files;
@@ -95,7 +95,7 @@ final readonly class Request
             || str_contains($accept, '*/*');
     }
 
-    private function fetchData(): Request
+    private function fetchData(): self
     {
         $data = file_get_contents('php://input');
         if (empty($data)) {
@@ -105,39 +105,39 @@ final readonly class Request
         return $this;
     }
 
-    private function fetchFiles(): Request
+    private function fetchFiles(): self
     {
         $this->files = $_FILES;
         return $this;
     }
 
-    private function fetchHeaders(): Request
+    private function fetchHeaders(): self
     {
         $this->headers = getallheaders();
         return $this;
     }
 
-    private function fetchMethod(array $info): Request
+    private function fetchMethod(array $info): self
     {
         $this->method = $info['REQUEST_METHOD'] ?? 'GET';
         return $this;
     }
 
-    private function fetchHost(array $info): Request
+    private function fetchHost(array $info): self
     {
         $host = ($info['REQUEST_SCHEME'] ?? 'http') . '://' . ($info['HTTP_HOST'] ?? '');
         $this->host = trim($host, '/');
         return $this;
     }
 
-    private function fetchSegments(array $info): Request
+    private function fetchSegments(array $info): self
     {
         $uri = trim(($info['REQUEST_URI'] ?? ''), '/');
         $this->segments = explode('/', $uri);
         return $this;
     }
 
-    private function fetchUrl(): Request
+    private function fetchUrl(): self
     {
         $uriSections = $this->segments;
         unset($uriSections[0]);
@@ -147,7 +147,7 @@ final readonly class Request
         return $this;
     }
 
-    private function fetchQuery(array $info): Request
+    private function fetchQuery(array $info): self
     {
         $this->query = $info['QUERY_STRING'] ?? '';
         $queries = explode('&', $this->query);

@@ -2,10 +2,10 @@
 
 namespace Pano\Core;
 
-abstract class Domain
+abstract readonly class BaseDomain
 {
     public function __construct(
-        protected readonly Request $request
+        protected BaseRequest $request
     ) {}
 
     abstract protected function handle(): \Closure;

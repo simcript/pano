@@ -2,9 +2,9 @@
 
 namespace Pano\Domains;
 
-use Pano\Core\Domain;
+use Pano\Core\BaseDomain;
 
-class Main extends Domain
+readonly class Main extends BaseDomain
 {
 
     public function handle(): \Closure
