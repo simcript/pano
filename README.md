@@ -1,5 +1,5 @@
 # [Pano](https://simcript.github.io/pano/)
-## Nano Domain Framework (PHP)
+## PHP Nano Framework
 
 Pano is a **very small, Composer-independent nano framework** designed around a single idea:
 
