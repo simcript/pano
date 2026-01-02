@@ -1,2 +1,7 @@
 .env
-.idea
+/vendor
+.env.backup
+.phpunit.result.cache
+/.idea
+/.vscode
+.idea/*.xml
