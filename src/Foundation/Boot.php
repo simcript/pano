@@ -17,8 +17,8 @@ final class Boot extends BaseBoot
 
     public function run(): void
     {
-        $moduleName = config('modules.' . $this->request->getModule(), null);
         try {
+            $moduleName = config('modules.' . $this->request->getModule(), null);
             if ($moduleName === null) {
                 throw new Exception("Module ({$this->request->getModule()}) is not defined");
             }
@@ -31,8 +31,7 @@ final class Boot extends BaseBoot
             }
             $module = $reflection->newInstance($this->request);
             $module->routes()->dispatch();
-        }
-        catch (\Throwable $e) {
+        } catch (\Throwable $e) {
             Response::exception($e, $this->request)->send();
         }
     }

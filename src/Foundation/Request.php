@@ -39,10 +39,7 @@ final class Request extends BaseRequest
     public function expectsJson(): bool
     {
         $accept = $this->headers['Accept'] ?? '';
-
-        return str_contains($accept, 'application/json')
-            || str_contains($accept, 'text/json')
-            || str_contains($accept, '*/*');
+        return str_contains($accept, '*/json');
     }
 
     private function fetchData(): self

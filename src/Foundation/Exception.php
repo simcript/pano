@@ -28,7 +28,10 @@ final class Exception extends BaseException
     public function toHtml(bool $debug = false): string
     {
         if (!$debug) {
-            return '<h1>Something went wrong</h1>';
+            return sprintf(
+                '<h1>Something went wrong</h1><pre>%s</pre>',
+                htmlspecialchars($this->getMessage(), ENT_QUOTES)
+            );
         }
 
         return sprintf(
