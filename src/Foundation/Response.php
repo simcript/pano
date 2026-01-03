@@ -4,6 +4,7 @@ namespace Pano\Foundation;
 
 use Pano\Core\BaseResponse;
 use Pano\Core\BaseException;
+use Pano\Enum\HttpStatus;
 
 final class Response extends BaseResponse
 {
@@ -11,7 +12,7 @@ final class Response extends BaseResponse
 
     public static function make(
         mixed $body = null,
-        int $status = 200,
+        HttpStatus $status = HttpStatus::OK,
         array $headers = []
     ): self {
         return (new self())
@@ -22,7 +23,7 @@ final class Response extends BaseResponse
 
     public static function json(
         array|object $data,
-        int $status = 200,
+        HttpStatus $status = HttpStatus::OK,
         array $headers = []
     ): self {
         return (new self())
@@ -34,7 +35,7 @@ final class Response extends BaseResponse
 
     public static function text(
         string $text,
-        int $status = 200,
+        HttpStatus $status = HttpStatus::OK,
         array $headers = []
     ): self {
         return (new self())
@@ -46,7 +47,7 @@ final class Response extends BaseResponse
 
     public static function html(
         string $html,
-        int $status = 200,
+        HttpStatus $status = HttpStatus::OK,
         array $headers = []
     ): self {
         return (new self())
@@ -59,7 +60,7 @@ final class Response extends BaseResponse
     public static function stream(
         callable $callback,
         string $contentType = 'application/octet-stream',
-        int $status = 200,
+        HttpStatus $status = HttpStatus::OK,
         array $headers = []
     ): self {
         return (new self())
@@ -92,7 +93,7 @@ final class Response extends BaseResponse
 
         return self::text(
             $debug ? $e->getMessage() : 'Server Error',
-            500
+            HttpStatus::INTERNAL_SERVER_ERROR
         );
     }
 
@@ -102,7 +103,7 @@ final class Response extends BaseResponse
             return;
         }
 
-        http_response_code($this->status);
+        http_response_code($this->status->value);
 
         foreach ($this->headers as $key => $value) {
             header("$key: $value", true);

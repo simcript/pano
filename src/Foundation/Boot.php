@@ -3,7 +3,7 @@
 namespace Pano\Foundation;
 
 use Pano\Core\BaseBoot;
-use Pano\Core\BaseDomain;
+use Pano\Core\BaseModule;
 
 final class Boot extends BaseBoot
 {
@@ -17,20 +17,20 @@ final class Boot extends BaseBoot
 
     public function run(): void
     {
-        $domainName = config('domains.' . $this->request->getDomain(), null);
+        $moduleName = config('modules.' . $this->request->getModule(), null);
         try {
-            if ($domainName === null) {
-                throw new Exception("Domain ({$this->request->getDomain()}) is not defined");
+            if ($moduleName === null) {
+                throw new Exception("Module ({$this->request->getModule()}) is not defined");
             }
-            if (!class_exists($domainName)) {
-                throw new Exception("Domain class ($domainName) not found");
+            if (!class_exists($moduleName)) {
+                throw new Exception("Module class ($moduleName) not found");
             }
-            $reflection = new \ReflectionClass($domainName);
-            if (!$reflection->isSubclassOf(BaseDomain::class)) {
-                throw new Exception("Domain ($domainName) must extend " . BaseDomain::class);
+            $reflection = new \ReflectionClass($moduleName);
+            if (!$reflection->isSubclassOf(BaseModule::class)) {
+                throw new Exception("Module ($moduleName) must extend " . BaseModule::class);
             }
-            $domain = $reflection->newInstance($this->request);
-            $domain->routes()->dispatch();
+            $module = $reflection->newInstance($this->request);
+            $module->routes()->dispatch();
         }
         catch (\Throwable $e) {
             Response::exception($e, $this->request)->send();

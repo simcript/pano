@@ -2,7 +2,7 @@
 
 namespace Pano\Core;
 
-abstract readonly class BaseDomain
+abstract readonly class BaseModule
 {
     public function __construct(
         protected BaseRequest $request

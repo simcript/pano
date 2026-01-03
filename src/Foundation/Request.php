@@ -18,7 +18,7 @@ final class Request extends BaseRequest
             ->fetchHeaders();
     }
 
-    public function getDomain(): string
+    public function getModule(): string
     {
         if (config('app.resolver', 'path')) {
             return $this->segments[0] ?? '';

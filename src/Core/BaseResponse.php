@@ -2,15 +2,17 @@
 
 namespace Pano\Core;
 
+use Pano\Enum\HttpStatus;
+
 abstract class BaseResponse
 {
     abstract public function send(): void;
 
-    protected int $status = 200;
+    protected HttpStatus $status = HttpStatus::OK;
     protected array $headers = [];
     protected mixed $body = null;
 
-    public function setStatus(int $status): self
+    public function setStatus(HttpStatus $status): self
     {
         $this->status = $status;
         return $this;
@@ -25,7 +27,7 @@ abstract class BaseResponse
     public function setHeaders(array $headers): self
     {
         foreach ($headers as $k => $v) {
-            $this->header($k, $v);
+            $this->setHeader($k, $v);
         }
         return $this;
     }

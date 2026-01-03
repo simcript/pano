@@ -2,10 +2,10 @@
 
 namespace Pano\Foundation;
 
-use Pano\Core\BaseDomain;
+use Pano\Core\BaseModule;
 use Pano\Core\BaseRouter;
 
-final readonly class Domain extends BaseDomain
+final readonly class Module extends BaseModule
 {
     public function routes(): BaseRouter
     {

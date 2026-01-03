@@ -3,29 +3,29 @@
 namespace Pano\Foundation;
 
 use Pano\Core\BaseRouter;
-use Pano\HttpMethodEnum;
+use Pano\Enum\HttpMethod;
 
 final class Router extends BaseRouter
 {
 
     public function get(string $path, callable $handler): void
     {
-        $this->register(HttpMethodEnum::GET, $path, $handler);
+        $this->register(HttpMethod::GET, $path, $handler);
     }
 
     public function post(string $path, callable $handler): void
     {
-        $this->register(HttpMethodEnum::POST, $path, $handler);
+        $this->register(HttpMethod::POST, $path, $handler);
     }
 
     public function put(string $path, callable $handler): void
     {
-        $this->register(HttpMethodEnum::PUT, $path, $handler);
+        $this->register(HttpMethod::PUT, $path, $handler);
     }
 
     public function delete(string $path, callable $handler): void
     {
-        $this->register(HttpMethodEnum::DELETE, $path, $handler);
+        $this->register(HttpMethod::DELETE, $path, $handler);
     }
 
     protected function notFound(): mixed

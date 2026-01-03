@@ -29,7 +29,7 @@ Instead, it provides:
 
 * ✅ Execution contracts (Core)
 * ✅ Stable default behavior (Foundation)
-* ✅ Domain-centric architecture
+* ✅ Module-centric architecture
 
 ---
 
@@ -79,13 +79,13 @@ project/
 └── Pano/
     ├── Core/
     │   ├── BaseBoot.php
-    │   ├── BaseDomain.php
+    │   ├── BaseModule.php
     │   ├── BaseRequest.php
     │   └── BaseResponse.php
     │
     └── Foundation/
         ├── Boot.php
-        ├── Domain.php
+        ├── Module.php
         └── Request.php
 ```
 
@@ -119,10 +119,10 @@ abstract class BaseBoot
 
 ---
 
-## BaseDomain (Core Contract)
+## BaseModule (Core Contract)
 
 ```php
-abstract class BaseDomain
+abstract class BaseModule
 {
     public function __construct(
         protected BaseRequest $request
@@ -132,7 +132,7 @@ abstract class BaseDomain
 }
 ```
 
-Domains:
+Modules:
 
 * Are the **main execution units**
 * Receive a Request object
@@ -189,7 +189,7 @@ Error handling is intentionally simple.
 
 Developers may:
 
-* Catch exceptions inside Domains
+* Catch exceptions inside Modules
 * Override `handleException()` in Boot
 * Introduce custom exception contracts
 

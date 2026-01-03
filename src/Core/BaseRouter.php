@@ -2,7 +2,7 @@
 
 namespace Pano\Core;
 
-use Pano\HttpMethodEnum;
+use Pano\Enum\HttpMethod;
 
 abstract class BaseRouter
 {
@@ -26,7 +26,7 @@ abstract class BaseRouter
         $this->request = $request;
     }
 
-    protected function register(HttpMethodEnum $method, string $path, callable $handler): void
+    protected function register(HttpMethod $method, string $path, callable $handler): void
     {
         $path = trim($path, '/') . '/';
 
