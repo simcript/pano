@@ -1,4 +1,4 @@
 <?php
 return [
-    '' => \Pano\Modules\DefaultModule::class,
+    '' => \Pano\Modules\Default\DefaultModule::class,
 ];

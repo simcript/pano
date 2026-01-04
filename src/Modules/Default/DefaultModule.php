@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Pano\Modules;
+namespace Pano\Modules\Default;
 
 use Pano\Core\BaseModule;
 use Pano\Core\BaseRouter;
