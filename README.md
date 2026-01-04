@@ -1,7 +1,7 @@
 # [Pano](https://simcript.github.io/pano/)
 ## PHP Nano Framework
 
-Pano is a **very small, Composer-independent nano framework** designed around a single idea:
+Pano is a **nano(very small) framework** designed around a single idea:
 
 > **Define clear execution contracts, then provide simple default implementations.**
 

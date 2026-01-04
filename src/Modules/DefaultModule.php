@@ -1,11 +1,13 @@
 <?php
 
-namespace Pano\Foundation;
+
+namespace Pano\Modules;
 
 use Pano\Core\BaseModule;
 use Pano\Core\BaseRouter;
+use Pano\Foundation\Router;
 
-final readonly class Module extends BaseModule
+final readonly class DefaultModule extends BaseModule
 {
     public function routes(): BaseRouter
     {

@@ -4,6 +4,7 @@ namespace Pano\Foundation;
 
 use Pano\Core\BaseRouter;
 use Pano\Enum\HttpMethod;
+use Pano\Enum\HttpStatus;
 
 final class Router extends BaseRouter
 {
@@ -30,7 +31,7 @@ final class Router extends BaseRouter
 
     protected function notFound(): mixed
     {
-        throw new Exception('Route not found', 404, 404);
+        throw new Exception('Route not found', 404, HttpStatus::NOT_FOUND);
     }
 
 }
