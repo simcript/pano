@@ -5,8 +5,6 @@ namespace Pano\Modules\Default;
 
 use Pano\Core\BaseModule;
 use Pano\Core\BaseRouter;
-use Pano\Enum\HttpStatus;
-use Pano\Foundation\Response;
 use Pano\Foundation\Router;
 
 final readonly class DefaultModule extends BaseModule
@@ -21,7 +19,9 @@ final readonly class DefaultModule extends BaseModule
 
     public function info(): void
     {
-        Response::text('Pano a php nano framework')->send();
+        $this->view()
+            ->with(['name' => 'Pano'])
+            ->layout('layout')
+            ->render('home');
     }
-
 }
