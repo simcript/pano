@@ -2,19 +2,18 @@
 
 namespace Pano\Core;
 
-use Pano\Foundation\View;
-
 abstract readonly class BaseModule
 {
     abstract protected function routes(): BaseRouter;
 
+    abstract protected function view(): BaseView;
+
+    abstract protected function log(): BaseLogger;
+
     public function __construct(
         protected BaseRequest $request
-    ) {}
-
-    protected function view(): BaseView
+    )
     {
-        return new View($this->viewBasePath());
     }
 
     protected function viewBasePath(): string
@@ -22,7 +21,12 @@ abstract readonly class BaseModule
         return $this->moduleBasePath() . DIRECTORY_SEPARATOR . 'Views' . DIRECTORY_SEPARATOR;
     }
 
-    public function moduleBasePath():string
+    protected function logsBasePath(): string
+    {
+        return $this->moduleBasePath() . DIRECTORY_SEPARATOR . 'Logs' . DIRECTORY_SEPARATOR;
+    }
+
+    public function moduleBasePath(): string
     {
         $reflector = new \ReflectionClass(static::class);
 
