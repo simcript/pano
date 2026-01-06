@@ -14,7 +14,6 @@ The framework is intentionally minimal and non-opinionated. It gives developers 
 Pano is built on these principles:
 
 * Absolute simplicity
-* No Composer dependency
 * No hidden magic
 * Full developer control
 * Clear and explicit execution flow

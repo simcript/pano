@@ -33,7 +33,6 @@ final readonly class DefaultModule extends BaseModule
 
     public function info(): void
     {
-        $this->log()->info('sss', ['asdf']);
         $this->view()
             ->with(['name' => 'Pano'])
             ->layout('layout')
