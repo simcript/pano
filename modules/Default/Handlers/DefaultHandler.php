@@ -4,7 +4,7 @@
 namespace Modules\Default\Handlers;
 
 use Composer\InstalledVersions;
-use Pano\Core\BaseHandler;
+use Pano\Kernel\BaseHandler;
 use Pano\Foundation\Response;
 
 final class DefaultHandler extends BaseHandler

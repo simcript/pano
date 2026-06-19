@@ -1,18 +1,19 @@
 <?php
 
 
-namespace Modules\Default;
+namespace Pano\Modules\Default;
 
-use Pano\Core\BaseLogger;
-use Pano\Core\BaseModule;
-use Pano\Core\BaseRouter;
-use Pano\Core\BaseView;
+use Pano\Foundation\Router;
+use Pano\Kernel\BaseLogger;
+use Pano\Kernel\BaseModule;
+use Pano\Kernel\BaseRouter;
+use Pano\Kernel\BaseView;
 use Pano\Foundation\Exception;
 use Pano\Foundation\Logger;
 use Pano\Foundation\View;
-use Modules\Default\Commands\DefaultCommand;
-use Modules\Default\Handlers\DefaultHandler;
-use Modules\Default\Interceptors\DefaultInterceptor;
+use Pano\Modules\Default\Commands\DefaultCommand;
+use Pano\Modules\Default\Handlers\DefaultHandler;
+use Pano\Modules\Default\Interceptors\DefaultInterceptor;
 
 final readonly class DefaultModule extends BaseModule
 {
@@ -21,10 +22,11 @@ final readonly class DefaultModule extends BaseModule
      */
     public function routes(): BaseRouter
     {
-        $this->router->get('/', DefaultHandler::class, 'info', [DefaultInterceptor::class]);
-        $this->router->command('app:info', DefaultCommand::class);
+        $router = new Router($this->request, $this);
+        $router->get('/', DefaultHandler::class, 'info', [DefaultInterceptor::class]);
+        $router->command('app:info', DefaultCommand::class);
 
-        return $this->router;
+        return $router;
     }
 
     public function view(): BaseView
