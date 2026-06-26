@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "simcript/pano-framework",
-            "version": "v1.4.4",
+            "version": "v1.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/simcript/pano-framework.git",
-                "reference": "2e3459a5b1258377cc1aede060f4bcb438d5ace4"
+                "reference": "6a2918e90c6c4aaac95ad14d014bd0a5e206aa96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simcript/pano-framework/zipball/2e3459a5b1258377cc1aede060f4bcb438d5ace4",
-                "reference": "2e3459a5b1258377cc1aede060f4bcb438d5ace4",
+                "url": "https://api.github.com/repos/simcript/pano-framework/zipball/6a2918e90c6c4aaac95ad14d014bd0a5e206aa96",
+                "reference": "6a2918e90c6c4aaac95ad14d014bd0a5e206aa96",
                 "shasum": ""
             },
             "require": {
@@ -57,9 +57,9 @@
                 "php"
             ],
             "support": {
-                "source": "https://github.com/simcript/pano-framework/tree/v1.4.4"
+                "source": "https://github.com/simcript/pano-framework/tree/v1.4.5"
             },
-            "time": "2026-06-18T22:28:23+00:00"
+            "time": "2026-06-26T20:36:18+00:00"
         }
     ],
     "packages-dev": [
