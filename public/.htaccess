@@ -15,7 +15,7 @@
 
     # Remove trailing slash (if not a directory)
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.+)/$ $1 [L,R=301,QSA]
+    RewriteRule ^(.+)/$ /$1 [R=301,L]
 
     # Serve existing files and directories directly
     RewriteCond %{REQUEST_FILENAME} -f [OR]
