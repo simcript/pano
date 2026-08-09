@@ -5,4 +5,4 @@ define("BASE_PATH", rtrim(__DIR__, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 
 require BASE_PATH . '/vendor/autoload.php';
 
 
-(new \Pano\Foundation\Boot())->run();
+(new \Pano\Foundation\Boot())->run($_SERVER);

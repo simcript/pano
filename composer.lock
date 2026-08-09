@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "simcript/pano-framework",
-            "version": "v1.4.6",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/simcript/pano-framework.git",
-                "reference": "da2bafdddf671d483aa9414cc256341ed236a736"
+                "reference": "fc632a85e1cf15c048f05653a4ac7d67ac09e990"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simcript/pano-framework/zipball/da2bafdddf671d483aa9414cc256341ed236a736",
-                "reference": "da2bafdddf671d483aa9414cc256341ed236a736",
+                "url": "https://api.github.com/repos/simcript/pano-framework/zipball/fc632a85e1cf15c048f05653a4ac7d67ac09e990",
+                "reference": "fc632a85e1cf15c048f05653a4ac7d67ac09e990",
                 "shasum": ""
             },
             "require": {
@@ -57,9 +57,9 @@
                 "php"
             ],
             "support": {
-                "source": "https://github.com/simcript/pano-framework/tree/v1.4.6"
+                "source": "https://github.com/simcript/pano-framework/tree/v1.6.0"
             },
-            "time": "2026-07-04T21:01:22+00:00"
+            "time": "2026-08-09T20:59:34+00:00"
         }
     ],
     "packages-dev": [
@@ -645,24 +645,24 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.30",
+            "version": "12.5.33",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "900400a5b616d6fb306f9549f6da33ba615d3fbb"
+                "reference": "b98e028a26c5c5ba7e4a54be96ccf35f2914d184"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/900400a5b616d6fb306f9549f6da33ba615d3fbb",
-                "reference": "900400a5b616d6fb306f9549f6da33ba615d3fbb",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b98e028a26c5c5ba7e4a54be96ccf35f2914d184",
+                "reference": "b98e028a26c5c5ba7e4a54be96ccf35f2914d184",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
+                "ext-filter": "*",
                 "ext-json": "*",
                 "ext-libxml": "*",
                 "ext-mbstring": "*",
-                "ext-xml": "*",
                 "ext-xmlwriter": "*",
                 "myclabs/deep-copy": "^1.13.4",
                 "phar-io/manifest": "^2.0.4",
@@ -723,7 +723,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.30"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.33"
             },
             "funding": [
                 {
@@ -731,7 +731,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-06-15T13:12:30+00:00"
+            "time": "2026-07-28T13:58:09+00:00"
         },
         {
             "name": "sebastian/cli-parser",

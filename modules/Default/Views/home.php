@@ -2,6 +2,7 @@
 Welcome | Pano
 <?php $this->end() ?>
 
+<?php $this->start('content') ?>
 <div class="card">
     <div class="logo">🚀</div>
 
@@ -18,3 +19,4 @@ Welcome | Pano
         <?= date("Y") ?> &copy; Powered by <span><a href="https://simcript.github.io/pano"><?= $name ?></a><small> <?= $version ?></small> </span>
     </div>
 </div>
+<?php $this->end() ?>

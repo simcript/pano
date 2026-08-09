@@ -1,8 +1,10 @@
 <?php
 
+namespace Modules\Default;
 
-namespace Pano\Modules\Default;
-
+use Modules\Default\Commands\DefaultCommand;
+use Modules\Default\Handlers\DefaultHandler;
+use Modules\Default\Interceptors\DefaultInterceptor;
 use Pano\Foundation\Router;
 use Pano\Kernel\BaseLogger;
 use Pano\Kernel\BaseModule;
@@ -11,9 +13,6 @@ use Pano\Kernel\BaseView;
 use Pano\Foundation\Exception;
 use Pano\Foundation\Logger;
 use Pano\Foundation\View;
-use Pano\Modules\Default\Commands\DefaultCommand;
-use Pano\Modules\Default\Handlers\DefaultHandler;
-use Pano\Modules\Default\Interceptors\DefaultInterceptor;
 
 final readonly class DefaultModule extends BaseModule
 {
