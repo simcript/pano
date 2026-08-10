@@ -9,7 +9,9 @@ runtime with a sensible project layout, a working `Default` module, configuratio
 and a web + CLI entry point so you can start building your own domains
 immediately.
 
-> Built for **Pano Framework `^1.4`** (currently `v1.4.4`).
+> Built for **Pano Framework `^1.6`** (currently `v1.6.0`).  
+> The framework itself is distributed as a **pure library** — this skeleton
+> provides the application scaffolding (`public/`, `config/`, modules, CLI, …).
 
 ---
 
@@ -54,8 +56,8 @@ Start the built-in PHP development server:
 php -S localhost:8000 -t public
 ```
 
-Open `http://localhost:8000` in your browser — you should see the **"It works!"**
-welcome page. The skeleton is alive.
+Open `http://localhost:8000` in your browser — you should see the welcome page.
+The skeleton is alive.
 
 ---
 
@@ -86,10 +88,10 @@ my-app/
 Two constants are defined at the very start of every entry point and drive the
 whole runtime:
 
-| Constant      | Meaning                                         |
-| ------------- | ----------------------------------------------- |
-| `PANO_STARTED`| Request start timestamp (microtime), for timing |
-| `BASE_PATH`   | Absolute path to the project root, with trailing `/` |
+| Constant       | Meaning                                              |
+|----------------|------------------------------------------------------|
+| `PANO_STARTED` | Request start timestamp (microtime), for timing      |
+| `BASE_PATH`    | Absolute path to the project root, with trailing `/` |
 
 Everything — config loading, `.env` resolution, module paths — is relative to
 `BASE_PATH`, so keep that in mind if you move entry points.
@@ -105,7 +107,7 @@ APP_NAME=Pano
 APP_ENV=local          # "local" enables the dev/pano module
 APP_KEY=base64:key     # Application key
 APP_DEBUG=true         # Show detailed errors (disable in production)
-APP_URL=https://neda.tst
+APP_URL=https://example.test
 MODULE_RESOLVER=path   # "path" or "subdomain"
 ```
 
@@ -118,7 +120,7 @@ Reads environment values into a config array. Access any value anywhere using
 the `config()` helper:
 
 ```php
-config('app.name');        // "Pano"
+config('app.name');         // "Pano"
 config('app.debug', false); // true, with a fallback
 ```
 
@@ -128,41 +130,45 @@ Maps a **module key** to a module class. This is how Pano decides which module
 handles the current request:
 
 ```php
+<?php
+
+use Modules\Default\DefaultModule;
+
 return [
     'pano' => env('APP_ENV', 'production') === 'local' ? DefaultModule::class : null,
-    ''     => \Modules\Default\DefaultModule::class,
+    ''     => DefaultModule::class,
 ];
 ```
 
 - The empty key `''` is the **default** module.
-- `'pano'` is only active in the `local` environment.
+- `'pano'` is only active in the `local` environment (useful for a development dashboard).
 
 ---
 
 ## The Module Resolver
 
 Pano routes an incoming request to a module **before** it routes to a handler.
-How the module is chosen depends on `MODULE_RESOLVER`:
+How the module is chosen depends on `MODULE_RESOLVER` / `config('app.resolver')`:
 
 ### `path` (default)
 
 The **first URL segment** is the module key. The remainder is the route path.
 
-| URL                          | Module key | Route        |
-| ---------------------------- | ---------- | ------------ |
-| `/blog/posts/12`             | `blog`     | `/posts/12`  |
-| `/`                          | `''`       | `/`          |
+| URL              | Module key | Route       |
+|------------------|------------|-------------|
+| `/blog/posts/12` | `blog`     | `/posts/12` |
+| `/`              | `''`       | `/`         |
 
 ### `subdomain`
 
 The **subdomain** is the module key. The root domain is derived from `APP_URL`,
 so only the leading sub-part of that host is treated as a module:
 
-| Host                         | Module key |
-| ---------------------------- | ---------- |
-| `blog.neda.tst` (APP_URL=`https://neda.tst`) | `blog`  |
-| `api.v2.neda.tst`            | `api.v2`   |
-| `neda.tst` (the root itself) | `''`       |
+| Host                                             | Module key |
+|--------------------------------------------------|------------|
+| `blog.example.test` (APP_URL=`https://example.test`) | `blog`  |
+| `api.v2.example.test`                            | `api.v2`   |
+| `example.test` (the root itself)                 | `''`       |
 
 If the resolver is neither `path` nor `subdomain`, an `Exception` is thrown.
 
@@ -176,39 +182,41 @@ If the resolver is neither `path` nor `subdomain`, an `Exception` is thrown.
 
 Pano is intentionally small. Five concepts carry the whole runtime:
 
-| Concept       | Responsibility                                            |
-| ------------- | --------------------------------------------------------- |
-| **Module**    | A self-contained domain; defines routes, views, logging   |
-| **Handler**   | A controller-like class that produces a `Response`        |
-| **Interceptor**| Runs before handlers (`onRequest`) and after (`onResponse`) |
-| **Command**   | A CLI action, like a console controller                    |
-| **View**      | Renders templates with layouts and sections               |
+| Concept         | Responsibility                                              |
+|-----------------|-------------------------------------------------------------|
+| **Module**      | A self-contained domain; defines routes, views, logging     |
+| **Handler**     | A controller-like class that produces a `Response`          |
+| **Interceptor** | Runs before handlers (`onRequest`) and after (`onResponse`) |
+| **Command**     | A CLI action, like a console controller                     |
+| **View**        | Renders templates with layouts and sections                 |
 
 The base contracts live in the `Pano\Kernel` namespace; ready-to-use concrete
 implementations live in `Pano\Foundation`.
 
-| Concept       | Base (abstract) contract       | Concrete implementation     |
-| ------------- | ------------------------------ | --------------------------- |
-| Module        | `Pano\Kernel\BaseModule`       | *(you extend it)*           |
-| Router        | `Pano\Kernel\BaseRouter`       | `Pano\Foundation\Router`    |
-| Request       | `Pano\Kernel\BaseRequest`      | `Pano\Foundation\Request`   |
-| Response      | `Pano\Kernel\BaseResponse`     | `Pano\Foundation\Response`  |
-| View          | `Pano\Kernel\BaseView`         | `Pano\Foundation\View`      |
-| Handler       | `Pano\Kernel\BaseHandler`      | *(you extend it)*           |
-| Interceptor   | `Pano\Kernel\BaseInterceptor`  | *(you extend it)*           |
-| Command       | `Pano\Kernel\BaseCommand`      | *(you extend it)*           |
-| Logger        | `Pano\Kernel\BaseLogger`       | `Pano\Foundation\Logger`    |
-| Exception     | `Pano\Kernel\BaseException`    | `Pano\Foundation\Exception` |
+| Concept       | Base (abstract) contract          | Concrete implementation        |
+|---------------|-----------------------------------|--------------------------------|
+| Module        | `Pano\Kernel\BaseModule`          | *(you extend it)*              |
+| Router        | `Pano\Kernel\BaseRouter`          | `Pano\Foundation\Router`       |
+| Request       | `Pano\Kernel\BaseRequest`         | `Pano\Foundation\Request`      |
+| Response      | `Pano\Kernel\BaseResponse`        | `Pano\Foundation\Response`     |
+| View          | `Pano\Kernel\BaseView`            | `Pano\Foundation\View`         |
+| Handler       | `Pano\Kernel\BaseHandler`         | *(you extend it)*              |
+| Interceptor   | `Pano\Kernel\BaseInterceptor`     | *(you extend it)*              |
+| Command       | `Pano\Kernel\BaseCommand`         | *(you extend it)*              |
+| Logger        | `Pano\Kernel\BaseLogger`          | `Pano\Foundation\Logger`       |
+| Exception     | `Pano\Kernel\BaseException`       | `Pano\Foundation\Exception`    |
+| Bag           | `Pano\Kernel\BaseBag`             | `Pano\Foundation\Bag`          |
 
 > **Important:** Always extend the `Pano\Kernel\Base*` contracts (and use the
-> `Pano\Foundation\*` implementations). The older `Pano\Core` / `Pano\Enum`
+> `Pano\Foundation\*` implementations). Application modules belong under the
+> `Modules\` namespace (not `Pano\Modules\`). The older `Pano\Core` / `Pano\Enum`
 > namespaces no longer exist.
 
 ---
 
 ## Building a Module
 
-A module is a `readonly` class extending `BaseModule`. It must define three
+A module is a `final readonly` class extending `BaseModule`. It must define three
 methods: `routes()`, `view()`, and `log()`.
 
 ```php
@@ -216,8 +224,8 @@ methods: `routes()`, `view()`, and `log()`.
 
 namespace Modules\Blog;
 
-use Pano\Foundation\Exception;
 use Pano\Foundation\Logger;
+use Pano\Foundation\Router;
 use Pano\Foundation\View;
 use Pano\Kernel\BaseLogger;
 use Pano\Kernel\BaseModule;
@@ -225,20 +233,21 @@ use Pano\Kernel\BaseRouter;
 use Pano\Kernel\BaseView;
 use Modules\Blog\Handlers\PostHandler;
 use Modules\Blog\Interceptors\AuthInterceptor;
+use Modules\Blog\Commands\PublishCommand;
 
 final readonly class BlogModule extends BaseModule
 {
     public function routes(): BaseRouter
     {
         $router = new Router($this->request, $this);
-    
+
         // HTTP routes: $router->METHOD(path, Handler::class, action, [interceptors])
         $router->get('/posts', PostHandler::class, 'index');
         $router->get('/posts/[id]', PostHandler::class, 'show');
         $router->post('/posts', PostHandler::class, 'store', [AuthInterceptor::class]);
 
         // CLI commands
-        $router->command('blog:publish', \Modules\Blog\Commands\PublishCommand::class);
+        $router->command('blog:publish', PublishCommand::class);
 
         return $router;
     }
@@ -259,10 +268,10 @@ final readonly class BlogModule extends BaseModule
 module's own directory via reflection:
 
 ```php
-$this->viewPath();   // .../Modules/Blog/Views
-$this->filePath();   // .../Modules/Blog/Files
-$this->logPath();    // .../Modules/Blog/Logs
-$this->path();       // .../Modules/Blog
+$this->viewPath();   // .../modules/Blog/Views
+$this->filePath();   // .../modules/Blog/Files
+$this->logPath();    // .../modules/Blog/Logs
+$this->path();       // .../modules/Blog
 $this->name();       // "BlogModule" (short class name)
 ```
 
@@ -270,7 +279,7 @@ Register the module in `config/modules.php`:
 
 ```php
 return [
-    ''   => \Modules\Default\DefaultModule::class,
+    ''     => \Modules\Default\DefaultModule::class,
     'blog' => \Modules\Blog\BlogModule::class,
 ];
 ```
@@ -306,11 +315,11 @@ public function post($id, $postId): Response { ... }
 
 Parameter flags:
 
-| Syntax        | Meaning                                  |
-| ------------- | ---------------------------------------- |
-| `[id]`        | Required segment                         |
-| `[id?]`       | Optional (must be the **last** segment)  |
-| `[id*]`       | Catch-all (must be the **last** segment) |
+| Syntax   | Meaning                                  |
+|----------|------------------------------------------|
+| `[id]`   | Required segment                         |
+| `[id?]`  | Optional (must be the **last** segment)  |
+| `[id*]`  | Catch-all (must be the **last** segment) |
 
 ```php
 $router->get('/files/[path*]', FileHandler::class, 'show');
@@ -431,11 +440,11 @@ Useful `HttpStatusEnum` values: `OK`, `CREATED`, `NO_CONTENT`, `MOVED_PERMANENTL
 If a handler (or anything in the pipeline) throws, `Response::exception($e, $request)`
 turns the throwable into an appropriate response:
 
-| Context | Output |
-|---|---|
-| CLI request | colored terminal line, `ResultCodeEnum::ERROR` |
-| `expectsJson()` | `$e->toArray($debug)` as JSON |
-| otherwise | `$e->toHtml($debug)` as HTML |
+| Context         | Output                                         |
+|-----------------|------------------------------------------------|
+| CLI request     | colored terminal line, `ResultCodeEnum::ERROR` |
+| `expectsJson()` | `$e->toArray($debug)` as JSON                  |
+| otherwise       | `$e->toHtml($debug)` as HTML                   |
 
 This is wired into the global handler, so you never need to wrap your handlers
 in try/catch for rendering.
@@ -451,7 +460,7 @@ calls `send()` for you; you normally just `return` the response.
 ## The Bag
 
 `Bag` (`Pano\Foundation\Bag`, extending `Pano\Kernel\BaseBag`) is Pano's
-lightweight, chainable key/value container. You already met it as
+lightweight, chainable key/value container. You already meet it as
 `$request->attributes`. You can also use it anywhere you need structured data.
 
 It behaves like an array — it implements `ArrayAccess`, `IteratorAggregate`,
@@ -522,10 +531,9 @@ namespace Modules\Blog\Interceptors;
 use Pano\Kernel\BaseInterceptor;
 use Pano\Kernel\BaseResponse;
 use Pano\Foundation\Exception;
-use Pano\Foundation\Response;
 use Pano\Kernel\HttpStatusEnum;
 
-class AuthInterceptor extends BaseInterceptor
+final class AuthInterceptor extends BaseInterceptor
 {
     public function onRequest(): void
     {
@@ -555,7 +563,7 @@ class AuthInterceptor extends BaseInterceptor
 Attach interceptors to a route as the fourth argument:
 
 ```php
-$this->router->post('/posts', PostHandler::class, 'store', [AuthInterceptor::class]);
+$router->post('/posts', PostHandler::class, 'store', [AuthInterceptor::class]);
 ```
 
 ### Execution order
@@ -604,12 +612,12 @@ $this->request->expectsJson();   // true if Accept header asks for JSON
 
 `getData()` decodes the request body based on the `Content-Type`:
 
-| Content-Type                            | `getData()` returns              |
-| --------------------------------------- | -------------------------------- |
-| (form submitted)                        | `$_POST`                         |
-| `application/json`                      | decoded JSON array               |
-| `application/x-www-form-urlencoded`     | `parse_str` array                |
-| other / empty                           | `[]` (empty array)               |
+| Content-Type                        | `getData()` returns   |
+|-------------------------------------|-----------------------|
+| (form submitted)                    | `$_POST`              |
+| `application/json`                  | decoded JSON array    |
+| `application/x-www-form-urlencoded` | `parse_str` array     |
+| other / empty                       | `[]` (empty array)    |
 
 ### File uploads (`getFiles()`)
 
@@ -689,12 +697,12 @@ return Response::html(
 
 Template helpers available as `$this` inside views:
 
-| Method                                | Description                                  |
-| ------------------------------------- | -------------------------------------------- |
-| `$this->start('name')` / `$this->end()` | Open/close a named section                   |
-| `$this->section('name', 'default')`   | Echo a section's content (with fallback)     |
+| Method                                    | Description                              |
+|-------------------------------------------|------------------------------------------|
+| `$this->start('name')` / `$this->end()`   | Open/close a named section               |
+| `$this->section('name', 'default')`       | Echo a section's content (with fallback) |
 | `$this->fragment('partials/card', $data)` | Include a sub-template (with extra data) |
-| `$this->e($value)`                    | HTML-escape a stringable value               |
+| `$this->e($value)`                        | HTML-escape a stringable value           |
 
 > Always escape untrusted output with `$this->e()`.
 
@@ -702,7 +710,7 @@ Template helpers available as `$this` inside views:
 
 ## Logging
 
-Each module owns its logs. Create the logger via `$this->log()` and call any
+Each module owns its logs. Create the logger via `$this->module->log()` and call any
 PSR-style level method:
 
 ```php
@@ -800,23 +808,20 @@ final class PublishCommand extends BaseCommand
 `BaseCommand` gives you:
 
 ```php
-$this->request;   // the CLIRequest
-$this->module;    // the owning module (so $this->module->log() works in CLI too)
+$this->request;       // the CLIRequest
+$this->module;        // the owning module (so $this->module->log() works in CLI too)
 $this->info($text);   // print a green line
 $this->error($text);  // print a red line
 ```
-
-The `$arguments` array received by `handle()` is exactly `getPositional()`
-(i.e. everything after the command that does not start with `--`).
 
 ### Return codes
 
 `handle()` returns a `ResultCodeEnum`:
 
-| Value | Meaning |
-|---|---|
-| `OK` | success |
-| `ERROR` | general failure |
+| Value     | Meaning                     |
+|-----------|-----------------------------|
+| `OK`      | success                     |
+| `ERROR`   | general failure             |
 | `INVALID` | invalid input / usage error |
 
 This drives the terminal output color and signals failure to the shell.
@@ -842,11 +847,11 @@ throw new Exception(
 
 ### How it renders
 
-| Context | Output |
-|---|---|
-| CLI request | colored terminal line |
+| Context         | Output                                      |
+|-----------------|---------------------------------------------|
+| CLI request     | colored terminal line                       |
 | `expectsJson()` | JSON body `{ "message": ..., "data": ... }` |
-| otherwise | HTML error page |
+| otherwise       | HTML error page                             |
 
 In `APP_DEBUG=true` mode, the rendered body includes the exception class name and
 stack trace; in production it is hidden.
@@ -860,7 +865,6 @@ For richer domain errors, extend `BaseException` and implement `toArray()` and
 namespace Modules\Blog\Exceptions;
 
 use Pano\Kernel\BaseException;
-use Pano\Kernel\HttpStatusEnum;
 
 final class ValidationException extends BaseException
 {
@@ -895,18 +899,19 @@ a generic `500 Server Error`, with the real message shown only in debug mode.
 
 These globals are always available (autoloaded by the framework):
 
-| Function                      | Description                                          |
-| ----------------------------- | --------------------------------------------------- |
-| `env($key, $default = null)`  | Read a value from `.env`                            |
+| Function                        | Description                                          |
+|---------------------------------|------------------------------------------------------|
+| `env($key, $default = null)`    | Read a value from `.env`                             |
 | `config($key, $default = null)` | Dot-notation config read (e.g. `config('app.name')`) |
-| `url($path)`                  | Build an absolute URL using `APP_URL`               |
-| `currentUrl()`                | The current request's absolute URL                 |
-| `dd(...$args)`                | Dump-and-die debug helper (CLI or HTML aware)       |
+| `url($path)`                    | Build an absolute URL using `APP_URL`                |
+| `currentUrl()`                  | Return the current request URL                       |
+| `dd(...$args)`                  | Dump and die (CLI or HTML aware)                     |
 
 ```php
 env('APP_NAME', 'Pano');
 config('app.debug', false);
 url('posts/42');
+currentUrl();
 dd($user, $request->getData());
 ```
 
@@ -921,7 +926,7 @@ namespace.
 ./vendor/bin/phpunit
 ```
 
-A starter test is included at `tests/DefaultModuleTest.php`. Example:
+A starter test is included. Example:
 
 ```php
 <?php
@@ -940,7 +945,7 @@ class DefaultModuleTest extends TestCase
 }
 ```
 
-`phpunit.xml` is preconfigured with the `Pano Test Suite`.
+`phpunit.xml` is preconfigured with the Pano Test Suite.
 
 ---
 
@@ -1003,8 +1008,9 @@ php -S localhost:8000 -t public
 ## Learn More
 
 - **Framework source & docs:** [simcript/pano-framework](https://github.com/simcript/pano-framework)
-- **Architecture:** `ARCHITECTURE.md` in the framework repo
-- **Philosophy:** `MANIFESTO.md` in the framework repo
+- **Full developer guide:** [DOCUMENTATION.md](https://github.com/simcript/pano-framework/blob/main/DOCUMENTATION.md)
+- **Architecture:** [ARCHITECTURE.md](https://github.com/simcript/pano-framework/blob/main/ARCHITECTURE.md)
+- **Philosophy:** [MANIFESTO.md](https://github.com/simcript/pano-framework/blob/main/MANIFESTO.md)
 
 Pano is deliberately unopinionated — you bring the architecture. The framework
 should never make decisions on your behalf.
