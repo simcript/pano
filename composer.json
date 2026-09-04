@@ -1,8 +1,9 @@
 {
-  "name": "simcript/pano",
+  "name": "pano-php/pano",
   "description": "Pano application skeleton",
   "type": "project",
   "license": "MIT",
+  "keywords": ["php", "framework", "nano-framework", "lightweight", "pano"],
   "authors": [
     {
       "name": "alia_mehr",
