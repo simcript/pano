@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "19b9d8c81b47653eb30e68bf2ffc6ef8",
+    "content-hash": "35119742e1c24920f911590032e37418",
     "packages": [
         {
-            "name": "simcript/pano-framework",
-            "version": "v1.6.0",
+            "name": "pano-php/framework",
+            "version": "v1.6.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/simcript/pano-framework.git",
-                "reference": "fc632a85e1cf15c048f05653a4ac7d67ac09e990"
+                "url": "https://github.com/pano-php/framework.git",
+                "reference": "f38a81bc77ee2c58e03d7eb50de867e924d1112f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simcript/pano-framework/zipball/fc632a85e1cf15c048f05653a4ac7d67ac09e990",
-                "reference": "fc632a85e1cf15c048f05653a4ac7d67ac09e990",
+                "url": "https://api.github.com/repos/pano-php/framework/zipball/f38a81bc77ee2c58e03d7eb50de867e924d1112f",
+                "reference": "f38a81bc77ee2c58e03d7eb50de867e924d1112f",
                 "shasum": ""
             },
             "require": {
@@ -57,9 +57,9 @@
                 "php"
             ],
             "support": {
-                "source": "https://github.com/simcript/pano-framework/tree/v1.6.0"
+                "source": "https://github.com/pano-php/framework/tree/v1.6.2"
             },
-            "time": "2026-08-09T20:59:34+00:00"
+            "time": "2026-09-04T20:23:20+00:00"
         }
     ],
     "packages-dev": [
